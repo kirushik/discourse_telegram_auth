@@ -1,0 +1,12 @@
+[Service]
+User=nginx
+WorkingDirectory=/srv/telegram_auth
+PermissionsStartOnly=yes
+ExecStartPre=/usr/bin/mkdir -p -m 0777 /var/run/telegram_auth
+ExecStart=/usr/bin/bundle exec ruby application.rb -s -e prod -S /var/run/telegram_auth/%i.sock
+Restart=always
+StandardInput=null
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=%n
+KillMode=process

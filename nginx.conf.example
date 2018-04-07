@@ -1,0 +1,14 @@
+upstream telegram_auth {
+  server unix:/var/run/telegram_auth/api1.sock;
+  server unix:/var/run/telegram_auth/api2.sock;
+}
+
+server {
+  listen 80;
+
+  server_name telegram-auth.example.com;
+  location / {
+    proxy_pass http://telegram_auth;
+    proxy_set_header Host $host;
+  }
+}
