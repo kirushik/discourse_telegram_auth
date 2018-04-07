@@ -1,5 +1,6 @@
 require 'grape'
 require 'erb'
+require 'openssl'
 
 require './lib/single_sign_on'
 
@@ -14,30 +15,45 @@ module API
       requires :sig, type: String
     end
     get '/login' do
+      cookies[:sso] = declared(params)[:sso]
+      cookies[:sig] = declared(params)[:sig]
+
       content_type 'text/html'
       body TELEGRAM_LOGIN_PAGE.result_with_hash telegram_bot: env.telegram_bot
     end
 
+    params do
+      requires :hash, type: String
+
+      requires :id, type: Integer
+      requires :first_name, type: String
+      requires :last_name, type: String
+      requires :username, type: String
+      requires :photo_url, type: String
+
+      optional :auth_date, type: String
+    end
     get '/telegram_callback' do
+      prm = declared(params).symbolize_keys
+      secure_string = "auth_date=%{auth_date}\nfirst_name=%{first_name}\nid=%{id}\nlast_name=%{last_name}\nphoto_url=%{photo_url}\nusername=%{username}" % prm
+      hmac_secret = OpenSSL::Digest::SHA256.digest(env.telegram_bot_token)
+      expected_hmac = OpenSSL::HMAC.hexdigest('sha256', hmac_secret, secure_string)
+      raise "HMAC verification failed" unless expected_hmac == prm[:hash]
+
       sso = cookies[:sso]
       sig = cookies[:sig]
 
-      #user_data = parse_saml_payload(params[:SAMLResponse], env)
+      sign_on = SingleSignOn.parse sso, sig, env.encryption_key
 
-      if user_data
-        sign_on = SingleSignOn.parse sso, sig, env.encryption_key
+      sign_on.external_id = prm[:id]
+      sign_on.username = prm[:username]
+      sign_on.name = "%{first_name} %{last_name}" % prm
+      sign_on.email = "#{prm[:username]}@#{env.email_domain_stub}"
+      sign_on.avatar_url = prm[:photo_url]
 
-        sign_on.external_id = user_data[:external_id]
-        sign_on.username = user_data[:username]
-        sign_on.name = user_data[:name]
-        sign_on.email = user_data[:email]
-
-        discourse_url = URI.parse env.discourse_url
-        discourse_url.path = '/session/sso_login'
-        redirect sign_on.to_url discourse_url.to_s
-      else
-        status 401
-      end
+      discourse_url = URI.parse env.discourse_url
+      discourse_url.path = '/session/sso_login'
+      redirect sign_on.to_url discourse_url.to_s
     end
   end
 end
