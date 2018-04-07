@@ -8,8 +8,8 @@ GEM
       tzinfo (~> 1.1)
     addressable (2.5.2)
       public_suffix (>= 2.0.2, < 4.0)
-    async-rack (0.4.0.1)
-      rack (>= 1.1.0)
+    async-rack (0.5.1)
+      rack (~> 1.1)
     axiom-types (0.1.1)
       descendants_tracker (~> 0.0.4)
       ice_nine (~> 0.11.0)
@@ -58,12 +58,12 @@ GEM
     mustermann-grape (1.0.0)
       mustermann (~> 1.0.0)
     public_suffix (3.0.2)
-    rack (2.0.4)
+    rack (1.6.9)
     rack-accept (0.4.5)
       rack (>= 0.4)
     rack-accept-media-types (0.9)
-    rack-contrib (2.0.1)
-      rack (~> 2.0)
+    rack-contrib (1.8.0)
+      rack (~> 1.4)
     rack-respond_to (0.9.8)
       rack-accept-media-types (>= 0.6)
     thread_safe (0.3.6)
@@ -79,6 +79,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  async-rack (>= 0.5)
   goliath
   grape
 
