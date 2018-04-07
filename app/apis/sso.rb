@@ -12,7 +12,7 @@ module API
     end
     get '/login' do
       content_type 'text/html'
-      body DATA.read
+      body File.read('public/login.html')
     end
 
     post '/telegram_callback' do
@@ -38,50 +38,3 @@ module API
     end
   end
 end
-
-__END__
-<html>
-  <head>
-  </head>
-  <body>
-    
-    <script async src="https://telegram.org/js/telegram-widget.js?4" 
-            data-telegram-login="SimpleAuthBot" 
-            data-size="large" 
-            data-onauth="simpleTelegramAuth(user)" 
-            data-request-access="write">
-    </script>
-    
-    <!--     
-        1. Проверить есть ли такой пользователь в БД
-            - если есть - авторизовать
-            - если нет - открыть телеграм бота и попросить ввести email
-        2. Реализация через редирект на сайт, а оттуда вызывать бота  -->
-    
-    <!-- <script type="text/javascript">
-      
-      function onTelegramAuth(user) { 
-        window.open("https://api.telegram.org/bot531048629:AAE2r1K5L1FQQBJZpZV7TEi8FFtg7fQ25xg/sendMessage?chat_id=" 
-                + user.id + "&text=Привет " 
-                + user.first_name + " " 
-                + user.last_name + " c хешом: "
-                + user.hash + ". Пожалуйста, сообщи свой емейл, он необходим для регистрации. Дата: "
-                + user.auth_date); 
-      }  
-    </script> -->
-
-    <p id="id"></p>
-    <p id="userFisrtName"></p>
-    <p id="username"></p>
-    <p id="email"></p>
-
-    <script>
-        function simpleTelegramAuth(user) {
-          document.getElementById("id").innerHTML = user.id.toString();
-          document.getElementById("userFisrtName").innerHTML = String(user.first_name);
-          document.getElementById("username").innerHTML = String(user.username);
-          document.getElementById("email").innerHTML = String(user.username) + "@distributed.earth";
-        }
-    </script>
-  </body>
-</html>⏎  
