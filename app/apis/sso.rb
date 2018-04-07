@@ -1,9 +1,12 @@
 require 'grape'
+require 'erb'
 
 require './lib/single_sign_on'
 
 module API
   class SSO < Grape::API
+    TELEGRAM_LOGIN_PAGE = ERB.new File.read('templates/login.erb.html')
+
     format :txt
 
     params do
@@ -12,10 +15,10 @@ module API
     end
     get '/login' do
       content_type 'text/html'
-      body File.read('public/login.html')
+      body TELEGRAM_LOGIN_PAGE.result_with_hash telegram_bot: env.telegram_bot
     end
 
-    post '/telegram_callback' do
+    get '/telegram_callback' do
       sso = cookies[:sso]
       sig = cookies[:sig]
 
