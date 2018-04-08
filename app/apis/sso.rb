@@ -26,11 +26,11 @@ module API
       requires :hash, type: String
 
       requires :id, type: Integer
-      requires :first_name, type: String
-      requires :last_name, type: String
       requires :username, type: String
-      requires :photo_url, type: String
 
+      optional :first_name, type: String
+      optional :last_name, type: String
+      optional :photo_url, type: String
       optional :auth_date, type: String
     end
     get '/telegram_callback' do
@@ -47,9 +47,10 @@ module API
 
       sign_on.external_id = prm[:id]
       sign_on.username = prm[:username]
-      sign_on.name = "%{first_name} %{last_name}" % prm
       sign_on.email = "#{prm[:username]}@#{env.email_domain_stub}"
-      sign_on.avatar_url = prm[:photo_url]
+
+      sign_on.name = "%{first_name} %{last_name}" % prm if prm[:first_name] || prm[:last_name]
+      sign_on.avatar_url = prm[:photo_url] if prm[:photo_url]
 
       discourse_url = URI.parse env.discourse_url
       discourse_url.path = '/session/sso_login'
