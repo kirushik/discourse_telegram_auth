@@ -35,7 +35,7 @@ module API
     end
     get '/telegram_callback' do
       prm = declared(params).symbolize_keys
-      secure_string = "auth_date=%{auth_date}\nfirst_name=%{first_name}\nid=%{id}\nlast_name=%{last_name}\nphoto_url=%{photo_url}\nusername=%{username}" % prm
+      secure_string = prm.except(:hash).compact.to_a.sort_by{|key,_value| key}.map{|key, value| "#{key}=#{value}"}.join("\n")
       hmac_secret = OpenSSL::Digest::SHA256.digest(env.telegram_bot_token)
       expected_hmac = OpenSSL::HMAC.hexdigest('sha256', hmac_secret, secure_string)
       raise "HMAC verification failed" unless expected_hmac == prm[:hash]
